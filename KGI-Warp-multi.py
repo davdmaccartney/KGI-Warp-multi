@@ -31,8 +31,9 @@ def Gdal_Func(work_data):
     X2=int(work_data[1])
     X3=int(work_data[2])
     X4=int(work_data[3])
+    gsd = str(work_data[7]/100)
          
-    opt= gdal.WarpOptions(options=['TFW=YES','TILED=YES','BLOCKXSIZE=512'], format='GTiff', outputBounds=[X1,X2,X3,X4], xRes=0.05, yRes=0.05, dstSRS=epsg, multithread=True, resampleAlg=gdal.GRIORA_Bilinear)
+    opt= gdal.WarpOptions(options=['TFW=YES','TILED=YES','BLOCKXSIZE=512'], format='GTiff', outputBounds=[X1,X2,X3,X4], xRes=gsd, yRes=gsd, dstSRS=epsg, multithread=True, resampleAlg=gdal.GRIORA_Bilinear)
     gdal.Warp(tif_out,vrt,options=opt)
     
 
@@ -179,8 +180,8 @@ if __name__ == '__main__':
                 sys.exit(0)
 
 
+ ortho_res = easygui.integerbox(msg='Entrez le GSD en centimètre ', title='GSD', default=5, lowerbound=1, upperbound=1000, image=None, root=None)
 
- 
  ortho_size = easygui.integerbox(msg='Entrez la taille de la dalle en mètres', title='Taille de la dalle', default=200, lowerbound=100, upperbound=10000, image=None, root=None)
 
  
@@ -229,7 +230,7 @@ if __name__ == '__main__':
  time.sleep(1) 
  cls()
  #####################################################
- Photos = np.empty((total_dalles, 7), dtype=object)
+ Photos = np.empty((total_dalles, 8), dtype=object)
  #####################################################
 
  num = 0
@@ -251,7 +252,7 @@ if __name__ == '__main__':
       layer.SetSpatialFilterRect(float(X1),float(Y1),float(X2),float(Y2))
       num = layer.GetFeatureCount()
       if num > 0:
-         tif_out = dirmosaic+'\\'+str(X1[:4])+'_'+str(Y2[:5])+'.tif'
+         tif_out = dirmosaic+'\\'+str(X1[:5])+'_'+str(Y2[:6])+'.tif'
 
          Photos[cl,0] = X1
          Photos[cl,1] = Y1
@@ -260,6 +261,7 @@ if __name__ == '__main__':
          Photos[cl,4] = tif_out
          Photos[cl,5] = mon_vrt
          Photos[cl,6] = epsgout
+         Photos[cl,7] = ortho_res
          cl  += 1
          
        
